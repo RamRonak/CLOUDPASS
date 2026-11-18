@@ -1,0 +1,101 @@
+@model TicketVerifyPageViewModel
+@{
+    ViewData["Title"] = "QR Ticket & Bus Pass Verification";
+}
+
+<section class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-4">
+                <span class="cp-pill cp-pill-cyan mb-2"><i class="bi bi-shield-check"></i>CRYPTOGRAPHIC ANTI-FRAUD PORTAL</span>
+                <h2 class="cp-section-header">Verify Digital Ticket or Bus Pass</h2>
+                <p class="text-muted small">Validates HMAC-SHA256 token signature, database hash integrity, booking &amp; payment status, validity date, and single-use boarding protection.</p>
+            </div>
+
+            <div class="cp-card p-4 mb-4">
+                <form asp-action="Verify" method="post">
+                    <label class="form-label fw-bold small">Paste Signed Token or Scanned QR Verification URL</label>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text bg-light"><i class="bi bi-qr-code-scan text-primary"></i></span>
+                        <input asp-for="TokenInput" class="form-control font-monospace" placeholder="CP1.TKT.CP-2026... or full QR URL" required />
+                        <button type="submit" class="btn btn-cp-primary px-4">Verify Authenticity</button>
+                    </div>
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <div class="form-check form-switch">
+                            <input asp-for="MarkAsUsed" class="form-check-input" />
+                            <label asp-for="MarkAsUsed" class="form-check-label small fw-semibold text-primary">
+                                Admin / Conductor Mode: Mark Ticket as Boarded (Enforces Single-Use Lock)
+                            </label>
+                        </div>
+                    }
+                </form>
+            </div>
+
+            @if (Model.Result != null)
+            {
+                var r = Model.Result;
+                <div class="cp-card p-4 border-2 @(r.IsValid ? "border-success" : "border-danger") mb-4 cp-fade-in">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center @(r.IsValid ? "bg-success" : "bg-danger") text-white" style="width:54px;height:54px;font-size:1.6rem;">
+                            <i class="bi @(r.IsValid ? "bi-patch-check-fill" : "bi-x-octagon-fill")"></i>
+                        </div>
+                        <div>
+                            <span class="badge @(r.IsValid ? "text-bg-success" : "text-bg-danger") mb-1">@r.ResultCode</span>
+                            <h5 class="fw-bold mb-0 @(r.IsValid ? "text-success" : "text-danger")">@r.Message</h5>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(r.Reference))
+                    {
+                        <div class="row g-3 small bg-light rounded-3 p-3">
+                            <div class="col-md-4"><span class="text-muted">Type / Reference</span><br /><strong>@r.VerificationType • @r.Reference</strong></div>
+                            <div class="col-md-4"><span class="text-muted">Holder</span><br /><strong>@r.HolderName</strong></div>
+                            <div class="col-md-4"><span class="text-muted">Status / Payment</span><br /><strong>@r.BookingStatus / @r.PaymentStatus</strong></div>
+                            <div class="col-md-6"><span class="text-muted">Route</span><br /><strong>@r.RouteLabel</strong></div>
+                            <div class="col-md-6"><span class="text-muted">Bus / Validity</span><br /><strong>@(r.BusLabel ?? "—")</strong></div>
+                            @if (!string.IsNullOrWhiteSpace(r.SeatsLabel))
+                            {
+                                <div class="col-md-6"><span class="text-muted">Seats</span><br /><strong class="text-primary">@r.SeatsLabel</strong></div>
+                            }
+                            @if (r.JourneyDate.HasValue)
+                            {
+                                <div class="col-md-6"><span class="text-muted">Departure</span><br /><strong>@r.JourneyDate.Value.ToString("dd MMM yyyy, HH:mm")</strong></div>
+                            }
+                            @if (r.ValidUntil.HasValue)
+                            {
+                                <div class="col-md-6"><span class="text-muted">Valid Until</span><br /><strong>@r.ValidUntil.Value.ToString("dd MMM yyyy")</strong></div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (Model.RecentLogs.Any())
+            {
+                <div class="cp-card p-4">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-clock-history text-primary me-2"></i>Recent Verification Audit Log (Admin View)</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm small align-middle mb-0">
+                            <thead class="table-light">
+                                <tr><th>Time (UTC)</th><th>Type</th><th>Result</th><th>Message</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var v in Model.RecentLogs)
+                                {
+                                    <tr>
+                                        <td>@v.VerifiedAt.ToString("dd MMM HH:mm:ss")</td>
+                                        <td>@v.VerificationType</td>
+                                        <td><span class="badge @(v.IsValid ? "text-bg-success" : "text-bg-danger")">@v.ResultCode</span></td>
+                                        <td class="text-muted">@v.ResultMessage</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</section>

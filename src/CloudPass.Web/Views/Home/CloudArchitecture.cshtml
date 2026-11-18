@@ -1,0 +1,94 @@
+@{
+    ViewData["Title"] = "Cloud Architecture & High Availability";
+}
+
+<section class="container py-5">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <span class="cp-pill cp-pill-cyan mb-2"><i class="bi bi-cloud-check"></i>MICROSOFT AZURE ARCHITECTURE</span>
+            <h2 class="cp-section-header mb-1">Cloud Scalability, High Availability & Security</h2>
+            <p class="text-muted mb-0">Live telemetry from this CloudPass node paired with production Azure IaC specifications.</p>
+        </div>
+        <a href="/health" target="_blank" class="btn btn-cp-navy">
+            <i class="bi bi-heart-pulse text-info me-2"></i>Inspect Live <code>/health</code> JSON
+        </a>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="cp-card p-4 h-100">
+                <div class="small text-muted fw-semibold mb-1">ACTIVE COMPUTE NODE</div>
+                <div class="fs-5 fw-bold text-primary">@ViewBag.InstanceId</div>
+                <div class="small text-muted mt-2">Identified via <code>X-CloudPass-Node</code> response header for multi-instance load-balancing verification.</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="cp-card p-4 h-100">
+                <div class="small text-muted fw-semibold mb-1">CLOUD TICKET STORAGE</div>
+                <div class="fs-5 fw-bold text-dark">@ViewBag.StorageProvider</div>
+                <div class="small text-muted mt-2">Private container storage with unique blob keys (Azure Blob Storage in cloud; local emulator in offline dev).</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="cp-card p-4 h-100">
+                <div class="small text-muted fw-semibold mb-1">AUTOSCALE POLICY (BICEP IAC)</div>
+                <div class="fs-5 fw-bold text-success">Min 2 → Max 10 Instances</div>
+                <div class="small text-muted mt-2">Scale-out +2 when CPU &gt; 70% or HTTP Queue &gt; 100; scale-in -1 when CPU &lt; 30%.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="cp-card p-4 mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-diagram-3 text-primary me-2"></i>How CloudPass Solves High-Traffic Booking Peaks</h5>
+        <div class="row g-3 small">
+            <div class="col-md-6 col-lg-3">
+                <div class="p-3 bg-light rounded-3 h-100">
+                    <div class="fw-bold text-dark mb-1">1. Load Balancing & Autoscale</div>
+                    <p class="text-muted mb-0">Azure App Service P1v3 distributes traffic across stateless web nodes. Azure Monitor Autoscale adds capacity automatically during holiday surges.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="p-3 bg-light rounded-3 h-100">
+                    <div class="fw-bold text-dark mb-1">2. SQL Indexing & Retry Policy</div>
+                    <p class="text-muted mb-0">Composite indexes on routes, schedules, and seats keep searches sub-millisecond. EF Core retries transient Azure SQL faults automatically (5 retries).</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="p-3 bg-light rounded-3 h-100">
+                    <div class="fw-bold text-dark mb-1">3. Caching & Rate Limiting</div>
+                    <p class="text-muted mb-0">In-memory caching serves popular corridors without hitting SQL. ASP.NET Core Rate Limiter protects auth, API, and QR verification endpoints.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="p-3 bg-light rounded-3 h-100">
+                    <div class="fw-bold text-dark mb-1">4. Async Background Queue</div>
+                    <p class="text-muted mb-0">Heavy PDF rendering, blob uploads, and pass expiration checks run asynchronously in a bounded <code>Channel&lt;T&gt;</code> worker so checkout stays instant.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="cp-card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0"><i class="bi bi-activity text-success me-2"></i>Live Node Health Probe</h5>
+            <button type="button" class="btn btn-sm btn-cp-outline" onclick="refreshHealthProbe()">Refresh Probe</button>
+        </div>
+        <pre id="liveHealthOutput" class="bg-dark text-info p-3 rounded-3 small mb-0" style="max-height:300px;overflow:auto;">Loading /health telemetry...</pre>
+    </div>
+</section>
+
+@section Scripts {
+<script>
+async function refreshHealthProbe() {
+    const out = document.getElementById('liveHealthOutput');
+    try {
+        const res = await fetch('/health');
+        const txt = await res.text();
+        out.textContent = txt;
+    } catch (e) {
+        out.textContent = 'Health probe request failed: ' + e;
+    }
+}
+document.addEventListener('DOMContentLoaded', refreshHealthProbe);
+</script>
+}

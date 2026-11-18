@@ -1,0 +1,99 @@
+@model MyBookingsViewModel
+@{
+    ViewData["Title"] = "My Bookings";
+}
+
+<section class="container py-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <div>
+            <span class="cp-pill cp-pill-blue mb-1"><i class="bi bi-lock"></i>PRIVATE BOOKING VAULT</span>
+            <h2 class="cp-section-header mb-0">My Bookings &amp; Digital Tickets</h2>
+            <div class="small text-muted">Strict ownership protection: only your authenticated account can access these tickets.</div>
+        </div>
+        <a asp-controller="Bus" asp-action="Search" class="btn btn-cp-primary"><i class="bi bi-plus-lg me-1"></i>Book New Journey</a>
+    </div>
+
+    <ul class="nav nav-pills mb-4 gap-2" role="tablist">
+        <li class="nav-item"><button class="nav-link active rounded-pill px-4" data-bs-toggle="pill" data-bs-target="#tabUpcoming">Upcoming (@Model.Upcoming.Count)</button></li>
+        <li class="nav-item"><button class="nav-link rounded-pill px-4" data-bs-toggle="pill" data-bs-target="#tabCompleted">Completed (@Model.Completed.Count)</button></li>
+        <li class="nav-item"><button class="nav-link rounded-pill px-4" data-bs-toggle="pill" data-bs-target="#tabCancelled">Cancelled (@Model.Cancelled.Count)</button></li>
+        <li class="nav-item"><button class="nav-link rounded-pill px-4" data-bs-toggle="pill" data-bs-target="#tabAll">All History (@Model.AllBookings.Count)</button></li>
+    </ul>
+
+    <div class="tab-content">
+        @foreach (var tab in new (string Id, List<Booking> Items, bool Active)[] {
+            ("tabUpcoming", Model.Upcoming, true),
+            ("tabCompleted", Model.Completed, false),
+            ("tabCancelled", Model.Cancelled, false),
+            ("tabAll", Model.AllBookings, false)
+        })
+        {
+            <div class="tab-pane fade @(tab.Active ? "show active" : "")" id="@tab.Id">
+                @if (!tab.Items.Any())
+                {
+                    <div class="cp-card p-5 text-center text-muted">
+                        <i class="bi bi-ticket-perforated fs-1 d-block mb-2"></i>
+                        No bookings in this category yet.
+                    </div>
+                }
+                else
+                {
+                    <div class="d-grid gap-3">
+                        @foreach (var b in tab.Items)
+                        {
+                            <div class="cp-card p-4">
+                                <div class="row align-items-center g-3">
+                                    <div class="col-lg-5">
+                                        <div class="d-flex flex-wrap gap-2 mb-2">
+                                            <span class="badge @(b.BookingStatus == BookingStatus.Confirmed ? "text-bg-success" : b.BookingStatus == BookingStatus.Cancelled ? "text-bg-danger" : "text-bg-warning")">@b.BookingStatus</span>
+                                            <span class="badge @(b.PaymentStatus == PaymentStatus.Paid ? "text-bg-primary" : "text-bg-secondary")">Payment: @b.PaymentStatus</span>
+                                            @if (b.IsUsed)
+                                            {
+                                                <span class="badge text-bg-info text-dark">Boarded</span>
+                                            }
+                                        </div>
+                                        <h5 class="fw-bold mb-1">@b.BusSchedule.Route.SourceCity <i class="bi bi-arrow-right text-info mx-1"></i> @b.BusSchedule.Route.DestinationCity</h5>
+                                        <div class="small text-muted">
+                                            Ref: <code>@b.BookingReference</code> • @b.BusSchedule.Bus.BusName (@b.BusSchedule.Bus.BusNumber)
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 small">
+                                        <div><i class="bi bi-calendar-event text-primary me-1"></i><strong>@b.BusSchedule.DepartureTime.ToString("ddd, dd MMM yyyy • HH:mm")</strong></div>
+                                        <div><i class="bi bi-people text-primary me-1"></i>Seats: <strong>@string.Join(", ", b.Passengers.Select(p => p.SeatNumber))</strong> (@b.TotalPassengers passenger(s))</div>
+                                        <div class="fw-bold text-primary mt-1">Total: INR @b.TotalAmount.ToString("N2")</div>
+                                    </div>
+                                    <div class="col-lg-3 d-flex flex-wrap justify-content-lg-end gap-2">
+                                        @if (b.BookingStatus == BookingStatus.Confirmed && b.PaymentStatus == PaymentStatus.Paid)
+                                        {
+                                            <a asp-controller="Ticket" asp-action="ViewTicket" asp-route-bookingRef="@b.BookingReference" class="btn btn-cp-primary btn-sm">
+                                                <i class="bi bi-qr-code me-1"></i>Digital Ticket
+                                            </a>
+                                            <a asp-controller="Ticket" asp-action="DownloadPdf" asp-route-bookingRef="@b.BookingReference" class="btn btn-cp-outline btn-sm">
+                                                <i class="bi bi-file-earmark-pdf me-1"></i>PDF
+                                            </a>
+                                        }
+                                        else if (b.BookingStatus == BookingStatus.PendingPayment)
+                                        {
+                                            <a asp-action="Payment" asp-route-bookingRef="@b.BookingReference" class="btn btn-warning btn-sm fw-bold">
+                                                Complete Payment
+                                            </a>
+                                        }
+
+                                        @if (b.BookingStatus != BookingStatus.Cancelled && !b.IsUsed)
+                                        {
+                                            <form asp-action="Cancel" method="post" onsubmit="return confirm('Cancel booking @b.BookingReference and release seats?');">
+                                                <input type="hidden" name="bookingReference" value="@b.BookingReference" />
+                                                <input type="hidden" name="reason" value="Requested by passenger from My Bookings" />
+                                                <button type="submit" class="btn btn-outline-danger btn-sm">Cancel</button>
+                                            </form>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>

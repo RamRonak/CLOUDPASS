@@ -1,0 +1,42 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35506.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPass.Domain", "src\CloudPass.Domain\CloudPass.Domain.csproj", "{1A2B3C4D-1111-4A1B-9C1D-000000000001}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPass.Application", "src\CloudPass.Application\CloudPass.Application.csproj", "{1A2B3C4D-2222-4A1B-9C1D-000000000002}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPass.Infrastructure", "src\CloudPass.Infrastructure\CloudPass.Infrastructure.csproj", "{1A2B3C4D-3333-4A1B-9C1D-000000000003}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPass.Web", "src\CloudPass.Web\CloudPass.Web.csproj", "{1A2B3C4D-4444-4A1B-9C1D-000000000004}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudPass.Tests", "tests\CloudPass.Tests\CloudPass.Tests.csproj", "{1A2B3C4D-5555-4A1B-9C1D-000000000005}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1A2B3C4D-1111-4A1B-9C1D-000000000001}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A2B3C4D-1111-4A1B-9C1D-000000000001}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A2B3C4D-1111-4A1B-9C1D-000000000001}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A2B3C4D-1111-4A1B-9C1D-000000000001}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A2B3C4D-2222-4A1B-9C1D-000000000002}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A2B3C4D-2222-4A1B-9C1D-000000000002}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A2B3C4D-2222-4A1B-9C1D-000000000002}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A2B3C4D-2222-4A1B-9C1D-000000000002}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A2B3C4D-3333-4A1B-9C1D-000000000003}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A2B3C4D-3333-4A1B-9C1D-000000000003}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A2B3C4D-3333-4A1B-9C1D-000000000003}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A2B3C4D-3333-4A1B-9C1D-000000000003}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A2B3C4D-4444-4A1B-9C1D-000000000004}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A2B3C4D-4444-4A1B-9C1D-000000000004}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A2B3C4D-4444-4A1B-9C1D-000000000004}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A2B3C4D-4444-4A1B-9C1D-000000000004}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A2B3C4D-5555-4A1B-9C1D-000000000005}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A2B3C4D-5555-4A1B-9C1D-000000000005}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A2B3C4D-5555-4A1B-9C1D-000000000005}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A2B3C4D-5555-4A1B-9C1D-000000000005}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

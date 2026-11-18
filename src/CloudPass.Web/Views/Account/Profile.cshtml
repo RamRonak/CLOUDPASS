@@ -1,0 +1,154 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "My Profile & Account Security";
+}
+
+<section class="container py-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <div>
+            <span class="cp-pill cp-pill-blue mb-1"><i class="bi bi-person-check"></i>@Model.User.Role.Name ACCOUNT</span>
+            <h2 class="cp-section-header mb-0">@Model.User.FullName</h2>
+            <div class="small text-muted">@Model.User.Email • Member since @Model.User.CreatedAt.ToString("MMM yyyy")</div>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-controller="Booking" asp-action="MyBookings" class="btn btn-cp-outline btn-sm">My Bookings</a>
+            <a asp-controller="Pass" asp-action="Index" class="btn btn-cp-primary btn-sm">My Bus Passes</a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Personal & Contact Info -->
+        <div class="col-lg-7">
+            <div class="cp-card p-4 mb-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-person-lines-fill text-primary me-2"></i>Personal & Contact Information</h5>
+                <form asp-action="UpdateProfile" method="post">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Full Name</label>
+                            <input name="FullName" value="@Model.FullName" class="form-control rounded-3" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Phone Number</label>
+                            <input name="PhoneNumber" value="@Model.PhoneNumber" class="form-control rounded-3" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Email (Verified Identifier)</label>
+                            <input value="@Model.User.Email" class="form-control rounded-3 bg-light" readonly />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">City</label>
+                            <input name="City" value="@Model.City" class="form-control rounded-3" />
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label small fw-semibold">Address</label>
+                            <input name="Address" value="@Model.Address" class="form-control rounded-3" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Date of Birth</label>
+                            <input type="date" name="DateOfBirth" value="@Model.DateOfBirth?.ToString("yyyy-MM-dd")" class="form-control rounded-3" />
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-cp-primary">Save Profile Changes</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Password Change -->
+            <div class="cp-card p-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-shield-lock text-primary me-2"></i>Change Account Password</h5>
+                <form asp-action="ChangePassword" method="post">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Current Password</label>
+                            <input type="password" name="CurrentPassword" class="form-control rounded-3" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">New Password</label>
+                            <input type="password" name="NewPassword" class="form-control rounded-3" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Confirm New Password</label>
+                            <input type="password" name="ConfirmPassword" class="form-control rounded-3" required />
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-cp-navy">Update Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Column: Active Passes, Recent Bookings & Notifications -->
+        <div class="col-lg-5">
+            <div class="cp-card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-person-badge text-info me-2"></i>Active Bus Passes (@Model.ActivePasses.Count)</h6>
+                    <a asp-controller="Pass" asp-action="Index" class="small text-decoration-none">Manage</a>
+                </div>
+                @if (!Model.ActivePasses.Any())
+                {
+                    <p class="small text-muted mb-0">No active bus passes. Apply for a monthly commuter pass to save up to 18%.</p>
+                }
+                else
+                {
+                    @foreach (var p in Model.ActivePasses)
+                    {
+                        <div class="p-3 bg-light rounded-3 mb-2 d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-bold small">@p.Route.SourceCity ↔ @p.Route.DestinationCity</div>
+                                <div class="small text-muted">@p.PassNumber • Valid till @p.ValidUntil.ToString("dd MMM yyyy")</div>
+                            </div>
+                            <a asp-controller="Pass" asp-action="ViewPass" asp-route-passNumber="@p.PassNumber" class="btn btn-sm btn-cp-outline">QR Pass</a>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="cp-card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-ticket-perforated text-primary me-2"></i>Recent Bookings</h6>
+                    <a asp-controller="Booking" asp-action="MyBookings" class="small text-decoration-none">View All</a>
+                </div>
+                @if (!Model.RecentBookings.Any())
+                {
+                    <p class="small text-muted mb-0">No bookings yet.</p>
+                }
+                else
+                {
+                    @foreach (var b in Model.RecentBookings)
+                    {
+                        <div class="py-2 border-bottom d-flex justify-content-between align-items-center small">
+                            <div>
+                                <div class="fw-bold">@b.BusSchedule.Route.SourceCity → @b.BusSchedule.Route.DestinationCity</div>
+                                <div class="text-muted">@b.BookingReference • @b.BusSchedule.JourneyDate.ToString("dd MMM")</div>
+                            </div>
+                            <span class="badge @(b.BookingStatus == BookingStatus.Confirmed ? "text-bg-success" : b.BookingStatus == BookingStatus.Cancelled ? "text-bg-danger" : "text-bg-warning")">@b.BookingStatus</span>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="cp-card p-4">
+                <h6 class="fw-bold mb-3"><i class="bi bi-bell text-info me-2"></i>Recent Notifications</h6>
+                @if (!Model.Notifications.Any())
+                {
+                    <p class="small text-muted mb-0">You're all caught up!</p>
+                }
+                else
+                {
+                    <div class="d-grid gap-2" style="max-height:280px;overflow-y:auto;">
+                        @foreach (var n in Model.Notifications)
+                        {
+                            <div class="p-2 rounded-3 @(n.IsRead ? "bg-light" : "bg-info bg-opacity-10 border border-info border-opacity-25") small">
+                                <div class="fw-bold">@n.Title</div>
+                                <div class="text-muted">@n.Message</div>
+                                <div class="text-muted" style="font-size:0.72rem;">@n.CreatedAt.ToString("dd MMM, HH:mm") UTC</div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>

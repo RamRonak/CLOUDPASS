@@ -1,0 +1,20 @@
+version: v0.1
+testId: cloudpass-peak-traffic-test
+displayName: CloudPass Peak Traffic & Autoscale Validation
+testPlan: cloudpass-load-test.jmx
+description: Validates CloudPass response times and Azure App Service autoscaling under concurrent commuter load.
+engineInstances: 2
+failureCriteria:
+  - avg(response_time_ms) > 500
+  - percentage(error) > 1
+  - p95(response_time_ms) > 1200
+autoStop:
+  errorPercentage: 10
+  timeWindow: 60
+env:
+  - name: PROTOCOL
+    value: https
+  - name: PORT
+    value: "443"
+  - name: HOST
+    value: "<your-cloudpass-webapp>.azurewebsites.net"

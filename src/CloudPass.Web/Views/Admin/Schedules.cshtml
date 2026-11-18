@@ -1,0 +1,97 @@
+@model List<BusSchedule>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Schedule & Seat Inventory Management";
+    var buses = ViewBag.Buses as List<Bus> ?? new();
+    var routes = ViewBag.Routes as List<CloudPass.Domain.Entities.Route> ?? new();
+}
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="cp-card p-4">
+            <h6 class="fw-bold mb-3"><i class="bi bi-calendar-plus text-primary me-2"></i>Publish New Bus Schedule</h6>
+            <form asp-action="CreateSchedule" method="post">
+                <div class="mb-2">
+                    <label class="form-label small fw-semibold">Select Bus *</label>
+                    <select name="busId" class="form-select form-select-sm rounded-3" required>
+                        @foreach (var b in buses)
+                        {
+                            <option value="@b.Id">@b.BusName (@b.BusNumber • @b.BusType • @b.TotalSeats seats)</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small fw-semibold">Select Route *</label>
+                    <select name="routeId" class="form-select form-select-sm rounded-3" required>
+                        @foreach (var r in routes)
+                        {
+                            <option value="@r.Id">@r.SourceCity → @r.DestinationCity (Base INR @r.BaseFare.ToString("N0"))</option>
+                        }
+                    </select>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold">Journey Date *</label>
+                        <input type="date" name="journeyDate" value="@DateTime.UtcNow.Date.AddDays(1).ToString("yyyy-MM-dd")" class="form-control form-control-sm rounded-3" required />
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold">Departure Time *</label>
+                        <input type="time" name="departureTime" value="08:30" class="form-control form-control-sm rounded-3" required />
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small fw-semibold">Official Seat Fare (INR) *</label>
+                    <input type="number" step="0.01" name="officialFare" value="550" min="50" class="form-control form-control-sm rounded-3" required />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small fw-semibold">Boarding Point</label>
+                    <input name="boardingPoint" class="form-control form-control-sm rounded-3" placeholder="Central CloudPass Hub" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold">Dropping Point</label>
+                    <input name="droppingPoint" class="form-control form-control-sm rounded-3" placeholder="Highway Express Terminal" />
+                </div>
+                <button type="submit" class="btn btn-cp-primary btn-sm w-100">Create Schedule &amp; Generate Seats</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="cp-card p-4">
+            <h6 class="fw-bold mb-3">Upcoming &amp; Recent Schedules (@Model.Count)</h6>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle small mb-0">
+                    <thead class="table-light">
+                        <tr><th>#</th><th>Route &amp; Bus</th><th>Departure</th><th>Official Fare</th><th>Seats Left</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in Model)
+                        {
+                            <tr>
+                                <td>#@s.Id</td>
+                                <td>
+                                    <strong>@s.Route.SourceCity → @s.Route.DestinationCity</strong>
+                                    <div class="text-muted" style="font-size:0.75rem;">@s.Bus.BusName (@s.Bus.BusNumber)</div>
+                                </td>
+                                <td>@s.DepartureTime.ToString("dd MMM yyyy, HH:mm")</td>
+                                <td class="fw-bold text-primary">INR @s.OfficialFare.ToString("N0")</td>
+                                <td><strong>@s.AvailableSeats</strong> / @s.Bus.TotalSeats</td>
+                                <td>
+                                    <form asp-action="UpdateScheduleStatus" method="post" class="d-flex gap-1">
+                                        <input type="hidden" name="id" value="@s.Id" />
+                                        <select name="status" class="form-select form-select-sm" style="width:120px;" onchange="this.form.submit()">
+                                            @foreach (ScheduleStatus st in Enum.GetValues(typeof(ScheduleStatus)))
+                                            {
+                                                <option value="@st" selected="@(s.Status == st)">@st</option>
+                                            }
+                                        </select>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

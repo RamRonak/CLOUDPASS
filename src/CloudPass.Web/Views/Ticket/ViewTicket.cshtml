@@ -1,0 +1,132 @@
+@model DigitalTicketViewModel
+@{
+    ViewData["Title"] = $"Digital Ticket - {Model.Booking.BookingReference}";
+    var b = Model.Booking;
+}
+
+<section class="container py-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 no-print">
+        <div>
+            <a asp-controller="Booking" asp-action="MyBookings" class="small text-decoration-none"><i class="bi bi-arrow-left me-1"></i>Back to My Bookings</a>
+            <h3 class="fw-bold mb-0 mt-1">CloudPass Digital Boarding Pass</h3>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-action="DownloadPdf" asp-route-bookingRef="@b.BookingReference" class="btn btn-cp-primary">
+                <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF Ticket
+            </a>
+            <button type="button" class="btn btn-cp-navy" onclick="window.print()">
+                <i class="bi bi-printer me-1"></i>Print Ticket
+            </button>
+            <a asp-action="Verify" asp-route-token="@Model.SignedToken" class="btn btn-cp-outline">
+                <i class="bi bi-qr-code-scan me-1"></i>Live Verify QR
+            </a>
+        </div>
+    </div>
+
+    <div class="cp-ticket-card mx-auto" style="max-width:860px;">
+        <div class="cp-ticket-header">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <div class="fs-4 fw-extrabold">CLOUD<span class="text-info">PASS</span></div>
+                    <div class="small text-info">Your Journey. Your Ticket. Always Connected.</div>
+                </div>
+                <div class="text-md-end">
+                    <div class="small text-light opacity-75">BOOKING REFERENCE</div>
+                    <div class="fs-4 fw-bold font-monospace">@b.BookingReference</div>
+                    <span class="badge bg-success me-1">@b.BookingStatus</span>
+                    <span class="badge bg-info text-dark">Payment: @b.PaymentStatus</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 p-md-5">
+            <!-- Route & Time Banner -->
+            <div class="row align-items-center g-3 bg-light rounded-4 p-3 mb-4">
+                <div class="col-md-5">
+                    <div class="small text-muted fw-bold">DEPARTURE</div>
+                    <div class="fs-3 fw-extrabold text-dark">@b.BusSchedule.Route.SourceCity</div>
+                    <div class="fw-semibold text-primary">@b.BusSchedule.DepartureTime.ToString("ddd, dd MMM yyyy • HH:mm")</div>
+                    <div class="small text-muted"><i class="bi bi-geo-alt me-1"></i>@b.BusSchedule.BoardingPoint</div>
+                </div>
+                <div class="col-md-2 text-center">
+                    <i class="bi bi-arrow-right-circle-fill text-info fs-2"></i>
+                    <div class="small text-muted">@b.BusSchedule.Route.DistanceKm km</div>
+                </div>
+                <div class="col-md-5 text-md-end">
+                    <div class="small text-muted fw-bold">ARRIVAL</div>
+                    <div class="fs-3 fw-extrabold text-dark">@b.BusSchedule.Route.DestinationCity</div>
+                    <div class="fw-semibold text-primary">@b.BusSchedule.ArrivalTime.ToString("ddd, dd MMM yyyy • HH:mm")</div>
+                    <div class="small text-muted"><i class="bi bi-pin-map me-1"></i>@b.BusSchedule.DroppingPoint</div>
+                </div>
+            </div>
+
+            <div class="row g-4 align-items-center">
+                <div class="col-md-8">
+                    <h6 class="fw-bold text-uppercase text-muted small mb-2">Bus &amp; Passenger Information</h6>
+                    <div class="row g-2 small mb-3">
+                        <div class="col-6"><span class="text-muted">Bus Name:</span><br /><strong>@b.BusSchedule.Bus.BusName</strong></div>
+                        <div class="col-6"><span class="text-muted">Bus Number:</span><br /><strong>@b.BusSchedule.Bus.BusNumber</strong></div>
+                        <div class="col-6"><span class="text-muted">Operator:</span><br /><strong>@b.BusSchedule.Bus.OperatorName</strong></div>
+                        <div class="col-6"><span class="text-muted">Coach Type:</span><br /><strong>@b.BusSchedule.Bus.BusType</strong></div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered align-middle small mb-0">
+                            <thead class="table-light">
+                                <tr><th>Seat</th><th>Passenger Name</th><th>Age / Gender</th><th>ID Ref</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var p in b.Passengers)
+                                {
+                                    <tr>
+                                        <td><span class="badge text-bg-primary">@p.SeatNumber</span></td>
+                                        <td class="fw-semibold">@p.PassengerName</td>
+                                        <td>@p.Age / @p.Gender</td>
+                                        <td>@(string.IsNullOrWhiteSpace(p.IdProofType) ? "—" : $"{p.IdProofType} ({p.IdProofNumber})")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Cryptographic QR Box -->
+                <div class="col-md-4 text-center">
+                    <div class="p-3 border rounded-4 bg-white shadow-sm d-inline-block">
+                        <img src="@Model.QrCodeDataUri" alt="Signed Ticket QR Code" class="img-fluid" style="width:170px;height:170px;" />
+                        <div class="small fw-bold text-dark mt-2"><i class="bi bi-shield-fill-check text-success me-1"></i>Signed QR Code</div>
+                        <div class="text-muted" style="font-size:0.72rem;">Zero-PII • HMAC-SHA256</div>
+                        @if (b.IsUsed)
+                        {
+                            <div class="badge text-bg-warning mt-2">CHECKED IN: @b.UsedAt?.ToString("dd MMM HH:mm")</div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="cp-ticket-divider"></div>
+
+            <!-- Fare & Verification Token -->
+            <div class="row g-3 small align-items-center">
+                <div class="col-md-7">
+                    <div class="fw-bold text-dark mb-1">Cryptographic Verification Token</div>
+                    <div class="input-group input-group-sm no-print">
+                        <input id="cpTokenField" type="text" class="form-control font-monospace bg-light" value="@Model.SignedToken" readonly />
+                        <button type="button" class="btn btn-outline-primary" onclick="navigator.clipboard.writeText(document.getElementById('cpTokenField').value);this.textContent='Copied!';">Copy</button>
+                    </div>
+                    <div class="text-muted mt-1" style="font-size:0.75rem;">
+                        QR contains only this cryptographically signed non-PII token. Any modification invalidates the HMAC signature immediately.
+                    </div>
+                </div>
+                <div class="col-md-5 text-md-end">
+                    <div class="text-muted">Base: INR @b.BaseFareTotal.ToString("N2") | Fee: INR @b.ServiceFeeAmount.ToString("N2") | Tax: INR @b.TaxAmount.ToString("N2")</div>
+                    <div class="fs-5 fw-extrabold text-primary">Total Paid: INR @b.TotalAmount.ToString("N2")</div>
+                    @if (Model.Payment != null)
+                    {
+                        <div class="text-success" style="font-size:0.76rem;"><i class="bi bi-patch-check-fill me-1"></i>Gateway Payment ID: @Model.Payment.GatewayPaymentId</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

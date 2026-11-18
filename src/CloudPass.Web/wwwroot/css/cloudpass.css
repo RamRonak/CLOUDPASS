@@ -1,0 +1,474 @@
+:root {
+  --cp-navy-950: #061024;
+  --cp-navy-900: #0B1B3A;
+  --cp-navy-800: #132A54;
+  --cp-navy-700: #1E3A6E;
+  --cp-blue-600: #2563EB;
+  --cp-blue-500: #3B82F6;
+  --cp-cyan-500: #06B6D4;
+  --cp-cyan-400: #22D3EE;
+  --cp-sky-500: #0EA5E9;
+  --cp-surface: #F4F7FB;
+  --cp-card: #FFFFFF;
+  --cp-border: #E2E8F0;
+  --cp-text: #0F172A;
+  --cp-muted: #64748B;
+  --cp-success: #10B981;
+  --cp-warning: #F59E0B;
+  --cp-danger: #EF4444;
+  --cp-shadow-sm: 0 2px 8px rgba(11, 27, 58, 0.06);
+  --cp-shadow-md: 0 10px 28px rgba(11, 27, 58, 0.09);
+  --cp-shadow-lg: 0 20px 50px rgba(6, 16, 36, 0.18);
+  --cp-radius: 16px;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: var(--cp-surface);
+  color: var(--cp-text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+/* Navbar */
+.cp-navbar {
+  background: rgba(11, 27, 58, 0.96);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.16);
+  padding: 0.7rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+
+.cp-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+  color: #FFFFFF !important;
+  text-decoration: none;
+}
+
+.cp-brand-accent {
+  background: linear-gradient(135deg, var(--cp-cyan-400), var(--cp-blue-500));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.cp-navbar .nav-link {
+  color: rgba(226, 232, 240, 0.88) !important;
+  font-weight: 500;
+  font-size: 0.93rem;
+  padding: 0.5rem 0.9rem !important;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.cp-navbar .nav-link:hover,
+.cp-navbar .nav-link.active {
+  color: #FFFFFF !important;
+  background: rgba(56, 189, 248, 0.14);
+}
+
+/* Buttons */
+.btn-cp-primary {
+  background: linear-gradient(135deg, var(--cp-blue-600), var(--cp-cyan-500));
+  border: none;
+  color: #FFFFFF;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 0.65rem 1.4rem;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.28);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+.btn-cp-primary:hover {
+  color: #FFFFFF;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(6, 182, 212, 0.36);
+  filter: brightness(1.04);
+}
+
+.btn-cp-navy {
+  background: var(--cp-navy-900);
+  border: 1px solid var(--cp-navy-700);
+  color: #FFFFFF;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 0.6rem 1.3rem;
+  transition: all 0.18s ease;
+}
+
+.btn-cp-navy:hover {
+  background: var(--cp-navy-800);
+  color: #FFFFFF;
+  transform: translateY(-1px);
+}
+
+.btn-cp-outline {
+  background: transparent;
+  border: 1.5px solid var(--cp-blue-600);
+  color: var(--cp-blue-600);
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.18s ease;
+}
+
+.btn-cp-outline:hover {
+  background: var(--cp-blue-600);
+  color: #FFFFFF;
+}
+
+/* Hero Section */
+.cp-hero {
+  background:
+    radial-gradient(circle at 82% 20%, rgba(6, 182, 212, 0.25), transparent 42%),
+    radial-gradient(circle at 12% 85%, rgba(37, 99, 235, 0.30), transparent 45%),
+    linear-gradient(135deg, var(--cp-navy-950) 0%, var(--cp-navy-900) 55%, var(--cp-navy-800) 100%);
+  color: #FFFFFF;
+  padding: 4.5rem 0 6.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.cp-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(6, 182, 212, 0.15);
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  color: #67E8F9;
+  padding: 0.4rem 0.95rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.cp-hero h1 {
+  font-size: clamp(2.1rem, 4.4vw, 3.4rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+}
+
+.cp-search-card {
+  background: #FFFFFF;
+  border-radius: 20px;
+  padding: 1.75rem;
+  box-shadow: var(--cp-shadow-lg);
+  margin-top: -3.5rem;
+  position: relative;
+  z-index: 10;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.cp-card {
+  background: var(--cp-card);
+  border-radius: var(--cp-radius);
+  border: 1px solid var(--cp-border);
+  box-shadow: var(--cp-shadow-sm);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.cp-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--cp-shadow-md);
+  border-color: rgba(6, 182, 212, 0.45);
+}
+
+.cp-icon-box {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(6, 182, 212, 0.16));
+  color: var(--cp-blue-600);
+}
+
+.cp-section-header {
+  font-weight: 800;
+  color: var(--cp-navy-900);
+  letter-spacing: -0.02em;
+}
+
+.cp-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.72rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.cp-pill-cyan { background: rgba(6, 182, 212, 0.12); color: #0891B2; }
+.cp-pill-blue { background: rgba(37, 99, 235, 0.12); color: #1D4ED8; }
+.cp-pill-green { background: rgba(16, 185, 129, 0.13); color: #047857; }
+.cp-pill-amber { background: rgba(245, 158, 11, 0.15); color: #B45309; }
+.cp-pill-red { background: rgba(239, 68, 68, 0.13); color: #B91C1C; }
+
+/* Interactive Bus Seat Layout */
+.cp-bus-chassis {
+  background: #F8FAFC;
+  border: 2px solid #CBD5E1;
+  border-radius: 24px;
+  padding: 1.5rem;
+  position: relative;
+}
+
+.cp-bus-driver-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  margin-bottom: 1.15rem;
+  border-bottom: 2px dashed #CBD5E1;
+  color: var(--cp-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.cp-seat-grid-seater {
+  display: grid;
+  grid-template-columns: repeat(2, 56px) 34px repeat(2, 56px);
+  gap: 10px;
+  justify-content: center;
+}
+
+.cp-seat-grid-sleeper {
+  display: grid;
+  grid-template-columns: 78px 40px repeat(2, 78px);
+  gap: 12px;
+  justify-content: center;
+}
+
+.cp-seat-btn {
+  height: 46px;
+  border-radius: 10px;
+  border: 2px solid #CBD5E1;
+  background: #FFFFFF;
+  color: var(--cp-navy-900);
+  font-weight: 700;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.16s ease;
+  position: relative;
+}
+
+.cp-seat-btn.sleeper {
+  height: 54px;
+  border-radius: 12px;
+}
+
+.cp-seat-btn:hover:not(:disabled) {
+  border-color: var(--cp-cyan-500);
+  background: rgba(6, 182, 212, 0.08);
+  transform: scale(1.04);
+}
+
+.cp-seat-btn.selected {
+  background: linear-gradient(135deg, var(--cp-blue-600), var(--cp-cyan-500));
+  border-color: var(--cp-blue-600);
+  color: #FFFFFF;
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
+}
+
+.cp-seat-btn:disabled,
+.cp-seat-btn.occupied {
+  background: #E2E8F0;
+  border-color: #CBD5E1;
+  color: #94A3B8;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.cp-seat-legend-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+/* Digital Boarding Pass Ticket */
+.cp-ticket-card {
+  background: #FFFFFF;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: var(--cp-shadow-lg);
+  border: 1px solid #CBD5E1;
+}
+
+.cp-ticket-header {
+  background: linear-gradient(135deg, var(--cp-navy-950), var(--cp-navy-800));
+  color: #FFFFFF;
+  padding: 1.75rem 2rem;
+}
+
+.cp-ticket-divider {
+  border-top: 2px dashed #CBD5E1;
+  position: relative;
+  margin: 1.5rem 0;
+}
+
+.cp-ticket-divider::before,
+.cp-ticket-divider::after {
+  content: "";
+  position: absolute;
+  top: -12px;
+  width: 24px;
+  height: 24px;
+  background: var(--cp-surface);
+  border-radius: 50%;
+}
+
+.cp-ticket-divider::before { left: -36px; }
+.cp-ticket-divider::after { right: -36px; }
+
+/* Digital Bus Pass Card */
+.cp-pass-card {
+  background: linear-gradient(135deg, var(--cp-navy-950) 0%, #102A5C 55%, #0C4A6E 100%);
+  color: #FFFFFF;
+  border-radius: 22px;
+  padding: 2rem;
+  box-shadow: var(--cp-shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.cp-pass-card::after {
+  content: "";
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.22), transparent 70%);
+  top: -80px;
+  right: -60px;
+  pointer-events: none;
+}
+
+/* Admin Layout */
+.cp-admin-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.cp-admin-sidebar {
+  width: 264px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, var(--cp-navy-950), var(--cp-navy-900));
+  color: #E2E8F0;
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.cp-admin-sidebar .nav-link {
+  color: #CBD5E1;
+  border-radius: 11px;
+  padding: 0.68rem 0.95rem;
+  font-weight: 500;
+  font-size: 0.92rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+  transition: all 0.16s ease;
+}
+
+.cp-admin-sidebar .nav-link:hover,
+.cp-admin-sidebar .nav-link.active {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.38), rgba(6, 182, 212, 0.28));
+  color: #FFFFFF;
+}
+
+.cp-admin-main {
+  flex: 1;
+  background: var(--cp-surface);
+  min-width: 0;
+}
+
+.cp-kpi-card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 1.3rem 1.4rem;
+  border: 1px solid var(--cp-border);
+  box-shadow: var(--cp-shadow-sm);
+}
+
+.cp-kpi-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--cp-navy-900);
+  line-height: 1.2;
+}
+
+/* Footer */
+.cp-footer {
+  background: var(--cp-navy-950);
+  color: #94A3B8;
+  padding: 3.5rem 0 1.8rem;
+  border-top: 1px solid rgba(56, 189, 248, 0.15);
+}
+
+.cp-footer a {
+  color: #CBD5E1;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.cp-footer a:hover {
+  color: var(--cp-cyan-400);
+}
+
+/* Loading Overlay */
+#cpLoadingOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 16, 36, 0.45);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+#cpLoadingOverlay.show {
+  display: flex;
+}
+
+.cp-fade-in {
+  animation: cpFadeIn 0.35s ease-out both;
+}
+
+@keyframes cpFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 991.98px) {
+  .cp-admin-shell { flex-direction: column; }
+  .cp-admin-sidebar { width: 100%; }
+}
+
+@media print {
+  .cp-navbar, .cp-footer, .no-print, #cpLoadingOverlay { display: none !important; }
+  body { background: #FFFFFF !important; }
+  .cp-ticket-card { box-shadow: none !important; border: 1px solid #94A3B8 !important; }
+}

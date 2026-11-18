@@ -1,0 +1,37 @@
+@model List<AuditLog>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Immutable Security & Admin Audit Logs";
+}
+
+<div class="cp-card p-4 mb-4">
+    <form method="get" class="d-flex gap-2">
+        <input name="search" value="@ViewBag.Search" class="form-control form-control-sm rounded-3" placeholder="Filter by action (e.g. PRICE_TAMPERING_BLOCKED, IDOR, ADMIN_FARE_UPDATED), user email, or details..." />
+        <button type="submit" class="btn btn-cp-primary btn-sm px-4">Search Logs</button>
+        <a asp-action="AuditLogs" class="btn btn-outline-secondary btn-sm">Reset</a>
+    </form>
+</div>
+
+<div class="cp-card p-4">
+    <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle small mb-0">
+            <thead class="table-light">
+                <tr><th>Timestamp (UTC)</th><th>Action</th><th>Actor</th><th>Entity</th><th>Details</th><th>IP</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var log in Model)
+                {
+                    var isSecAlert = log.Action.Contains("BLOCKED") || log.Action.Contains("INVALID") || log.Action.Contains("FAILED") || log.Action.Contains("UNAUTHORIZED");
+                    <tr class="@(isSecAlert ? "table-danger" : "")">
+                        <td class="text-nowrap font-monospace">@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        <td><span class="badge @(isSecAlert ? "text-bg-danger" : "text-bg-primary")">@log.Action</span></td>
+                        <td>@log.UserEmail</td>
+                        <td>@log.EntityType #@log.EntityId</td>
+                        <td>@log.Details</td>
+                        <td class="font-monospace text-muted">@(log.IpAddress ?? "—")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

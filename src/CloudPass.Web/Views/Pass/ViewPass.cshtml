@@ -1,0 +1,55 @@
+@model DigitalBusPassViewModel
+@{
+    ViewData["Title"] = $"Digital Bus Pass - {Model.Pass.PassNumber}";
+    var p = Model.Pass;
+}
+
+<section class="container py-5">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4 no-print">
+        <a asp-action="Index" class="small text-decoration-none"><i class="bi bi-arrow-left me-1"></i>Back to Bus Pass Hub</a>
+        <div class="d-flex gap-2">
+            <a asp-action="DownloadPdf" asp-route-passNumber="@p.PassNumber" class="btn btn-cp-primary"><i class="bi bi-file-earmark-pdf me-1"></i>Download PDF Pass</a>
+            <button type="button" class="btn btn-cp-navy" onclick="window.print()"><i class="bi bi-printer me-1"></i>Print Pass</button>
+            <a asp-controller="Ticket" asp-action="Verify" asp-route-token="@Model.SignedToken" class="btn btn-cp-outline"><i class="bi bi-qr-code-scan me-1"></i>Verify QR</a>
+        </div>
+    </div>
+
+    <div class="cp-pass-card mx-auto" style="max-width:760px;">
+        <div class="row align-items-center g-4">
+            <div class="col-md-8">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <span class="badge bg-info text-dark fw-bold">OFFICIAL DIGITAL COMMUTER PASS</span>
+                    <span class="badge @(p.Status == BusPassStatus.Active ? "bg-success" : "bg-danger")">@p.Status</span>
+                </div>
+                <h2 class="fw-extrabold mb-1">@p.User.FullName</h2>
+                <div class="fs-5 text-info fw-semibold mb-3">@p.Route.SourceCity ↔ @p.Route.DestinationCity</div>
+
+                <div class="row g-3 small">
+                    <div class="col-6">
+                        <div class="opacity-75">PASS NUMBER</div>
+                        <div class="fw-bold font-monospace">@p.PassNumber</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="opacity-75">AMOUNT PAID</div>
+                        <div class="fw-bold">INR @p.AmountPaid.ToString("N2")</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="opacity-75">VALID FROM</div>
+                        <div class="fw-bold">@p.ValidFrom.ToString("dd MMM yyyy")</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="opacity-75">VALID UNTIL</div>
+                        <div class="fw-bold text-info">@p.ValidUntil.ToString("dd MMM yyyy")</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="bg-white p-3 rounded-4 d-inline-block text-dark shadow">
+                    <img src="@Model.QrCodeDataUri" alt="Digital Bus Pass QR" style="width:165px;height:165px;" />
+                    <div class="small fw-bold mt-2">Signed Pass QR</div>
+                    <div class="text-muted" style="font-size:0.7rem;">HMAC-SHA256 Protected</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,126 @@
+@model CheckoutViewModel
+@{
+    ViewData["Title"] = "Passenger Details & Checkout";
+    var s = Model.Schedule;
+    var fare = Model.FareBreakdown;
+}
+
+<section class="container py-4">
+    <div class="mb-4">
+        <span class="cp-pill cp-pill-blue mb-1"><i class="bi bi-shield-lock"></i>STEP 2 OF 3 • ZERO-TRUST SERVER PRICING</span>
+        <h2 class="cp-section-header mb-0">Booking &amp; Passenger Checkout</h2>
+    </div>
+
+    <form asp-action="CreateBooking" method="post" data-loading="true">
+        <input type="hidden" asp-for="ScheduleId" />
+        <input type="hidden" asp-for="SelectedSeatIdsCsv" />
+        <input type="hidden" asp-for="SubmittedTotalAmount" />
+
+        <div class="row g-4">
+            <!-- PASSENGER DETAILS -->
+            <div class="col-lg-8">
+                <div class="cp-card p-4 mb-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-people-fill text-primary me-2"></i>Passenger Manifest (@Model.Passengers.Count Seat(s))</h5>
+                    <p class="small text-muted mb-4">Enter accurate passenger details for each reserved seat. No sensitive personal data is embedded into the public QR code.</p>
+
+                    @for (int i = 0; i < Model.Passengers.Count; i++)
+                    {
+                        <div class="p-3 bg-light rounded-4 border mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-bold text-dark">Passenger @(i + 1)</span>
+                                <span class="badge text-bg-primary rounded-pill px-3">Seat @Model.Passengers[i].SeatNumber</span>
+                            </div>
+                            <input type="hidden" name="Passengers[@i].SeatId" value="@Model.Passengers[i].SeatId" />
+                            <input type="hidden" name="Passengers[@i].SeatNumber" value="@Model.Passengers[i].SeatNumber" />
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Full Name *</label>
+                                    <input name="Passengers[@i].PassengerName" value="@Model.Passengers[i].PassengerName" class="form-control rounded-3" placeholder="Passenger full name" required />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold">Age *</label>
+                                    <input type="number" name="Passengers[@i].Age" value="@Model.Passengers[i].Age" class="form-control rounded-3" min="1" max="120" required />
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold">Gender *</label>
+                                    <select name="Passengers[@i].Gender" class="form-select rounded-3">
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other" selected>Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Government / College ID Type (Optional)</label>
+                                    <select name="Passengers[@i].IdProofType" class="form-select rounded-3">
+                                        <option value="">Select ID Type</option>
+                                        <option value="Aadhaar">Aadhaar Card</option>
+                                        <option value="College ID">College / University ID</option>
+                                        <option value="PAN">PAN Card</option>
+                                        <option value="Passport">Passport</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">ID Reference (Last 4 Digits)</label>
+                                    <input name="Passengers[@i].IdProofNumber" class="form-control rounded-3" placeholder="e.g., XXXX-1234" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- AUTHORITATIVE SERVER FARE SUMMARY -->
+            <div class="col-lg-4">
+                <div class="cp-card p-4 sticky-top" style="top:88px;">
+                    <h5 class="fw-bold mb-3">Journey &amp; Official Fare</h5>
+                    <div class="p-3 rounded-3 bg-light mb-3 small">
+                        <div class="fw-bold text-dark fs-6">@s.Route.SourceCity → @s.Route.DestinationCity</div>
+                        <div class="text-muted">@s.Bus.BusName (@s.Bus.BusNumber)</div>
+                        <div class="text-primary fw-semibold mt-1">@s.DepartureTime.ToString("ddd, dd MMM yyyy • HH:mm")</div>
+                        <div class="mt-2">
+                            Seats:
+                            @foreach (var seat in Model.SelectedSeats)
+                            {
+                                <span class="badge text-bg-primary me-1">@seat.SeatNumber</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 small mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Base Fare (@fare.SeatCount × INR @fare.UnitOfficialFare.ToString("N2"))</span>
+                            <strong>INR @fare.BaseFareTotal.ToString("N2")</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>CloudPass Service Fee</span>
+                            <span>INR @fare.ServiceFeeAmount.ToString("N2")</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>GST / Applicable Taxes (@fare.TaxPercentage%)</span>
+                            <span>INR @fare.TaxAmount.ToString("N2")</span>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="fw-bold fs-6">Final Payable Amount</span>
+                        <span class="fs-4 fw-extrabold text-primary">INR @fare.TotalAmount.ToString("N2")</span>
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-cp-primary btn-lg">
+                            Lock Seats &amp; Proceed to Pay <i class="bi bi-lock-fill ms-1"></i>
+                        </button>
+                    </div>
+
+                    <div class="p-2 rounded-3 bg-primary bg-opacity-10 small text-dark">
+                        <i class="bi bi-shield-fill-check text-primary me-1"></i>
+                        <strong>Anti-Tampering Active:</strong> Price is verified against the official SQL database record before payment order creation.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</section>

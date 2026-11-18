@@ -1,0 +1,165 @@
+@model AdminDashboardViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Operations & Cloud Telemetry Overview";
+    var s = Model.Stats;
+}
+
+<!-- KPI STATS ROW -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="cp-kpi-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small text-muted fw-semibold">TOTAL REVENUE</span>
+                <i class="bi bi-currency-rupee text-primary fs-4"></i>
+            </div>
+            <div class="cp-kpi-value text-primary">INR @s.TotalRevenue.ToString("N0")</div>
+            <div class="small text-success mt-1">@s.ConfirmedBookings confirmed bookings</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="cp-kpi-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small text-muted fw-semibold">TOTAL BOOKINGS</span>
+                <i class="bi bi-ticket-perforated text-info fs-4"></i>
+            </div>
+            <div class="cp-kpi-value">@s.TotalBookings</div>
+            <div class="small text-danger mt-1">@s.CancelledBookings cancelled</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="cp-kpi-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small text-muted fw-semibold">ACTIVE BUS PASSES</span>
+                <i class="bi bi-person-badge text-success fs-4"></i>
+            </div>
+            <div class="cp-kpi-value">@s.ActiveBusPasses</div>
+            <div class="small text-warning fw-semibold mt-1">@s.PendingPassApplications pending approval(s)</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="cp-kpi-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small text-muted fw-semibold">USERS &amp; FLEET</span>
+                <i class="bi bi-bus-front text-dark fs-4"></i>
+            </div>
+            <div class="cp-kpi-value">@s.TotalUsers <span class="fs-6 text-muted fw-normal">users</span></div>
+            <div class="small text-muted mt-1">@s.TotalBuses buses • @s.TotalRoutes routes • @s.TotalSchedules schedules</div>
+        </div>
+    </div>
+</div>
+
+<!-- CHART & CLOUD TELEMETRY -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="cp-card p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0"><i class="bi bi-bar-chart-line text-primary me-2"></i>7-Day Revenue &amp; Booking Velocity</h6>
+                <span class="badge text-bg-light border">Server-Verified Ledger</span>
+            </div>
+            <canvas id="adminRevenueChart" height="110"></canvas>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="cp-card p-4 h-100">
+            <h6 class="fw-bold mb-3"><i class="bi bi-cloud-check text-info me-2"></i>Cloud Infrastructure Status</h6>
+            <div class="d-grid gap-3 small">
+                <div class="p-3 bg-light rounded-3 d-flex justify-content-between">
+                    <span class="text-muted">Ticket Storage Provider</span>
+                    <strong class="text-dark">@Model.StorageProvider</strong>
+                </div>
+                <div class="p-3 bg-light rounded-3 d-flex justify-content-between">
+                    <span class="text-muted">Async Queue Depth</span>
+                    <strong class="text-primary">@Model.QueuedBackgroundJobs item(s)</strong>
+                </div>
+                <div class="p-3 bg-light rounded-3 d-flex justify-content-between">
+                    <span class="text-muted">QR Verifications Logged</span>
+                    <strong class="text-success">@s.TotalVerifications scan(s)</strong>
+                </div>
+                <div class="d-grid gap-2 mt-2">
+                    <a asp-action="Passes" class="btn btn-cp-primary btn-sm">Review Pending Passes (@s.PendingPassApplications)</a>
+                    <a asp-controller="Ticket" asp-action="Verify" class="btn btn-cp-outline btn-sm">Open Conductor QR Scanner</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- RECENT BOOKINGS & AUDIT LOGS -->
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="cp-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0">Recent Bookings</h6>
+                <a asp-action="Bookings" class="small text-decoration-none">Manage All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle small mb-0">
+                    <thead class="table-light">
+                        <tr><th>Reference</th><th>Passenger</th><th>Route</th><th>Total</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var b in Model.RecentBookings)
+                        {
+                            <tr>
+                                <td class="font-monospace fw-bold">@b.BookingReference</td>
+                                <td>@b.User.FullName</td>
+                                <td>@b.BusSchedule.Route.SourceCity → @b.BusSchedule.Route.DestinationCity</td>
+                                <td class="fw-semibold">INR @b.TotalAmount.ToString("N0")</td>
+                                <td><span class="badge @(b.BookingStatus == BookingStatus.Confirmed ? "text-bg-success" : b.BookingStatus == BookingStatus.Cancelled ? "text-bg-danger" : "text-bg-warning")">@b.BookingStatus</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="cp-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0">Latest Security &amp; Admin Audit Logs</h6>
+                <a asp-action="AuditLogs" class="small text-decoration-none">Full Log</a>
+            </div>
+            <div class="d-grid gap-2">
+                @foreach (var a in Model.RecentAuditLogs.Take(7))
+                {
+                    <div class="p-2 bg-light rounded-3 small">
+                        <div class="d-flex justify-content-between">
+                            <strong class="text-primary">@a.Action</strong>
+                            <span class="text-muted" style="font-size:0.72rem;">@a.Timestamp.ToString("dd MMM HH:mm")</span>
+                        </div>
+                        <div class="text-dark text-truncate">@a.Details</div>
+                        <div class="text-muted" style="font-size:0.72rem;">@a.UserEmail</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Stats.RevenueTrend.Select(x => x.DateLabel)));
+const values = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Stats.RevenueTrend.Select(x => x.Revenue)));
+new Chart(document.getElementById('adminRevenueChart'), {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Verified Revenue (INR)',
+            data: values,
+            backgroundColor: 'rgba(37, 99, 235, 0.78)',
+            borderColor: '#06B6D4',
+            borderWidth: 2,
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+    }
+});
+</script>
+}

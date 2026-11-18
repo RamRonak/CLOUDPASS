@@ -1,0 +1,66 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Create Account";
+}
+
+<section class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="cp-card p-4 p-md-5 cp-fade-in">
+                <div class="text-center mb-4">
+                    <div class="cp-icon-box mx-auto mb-3"><i class="bi bi-person-plus-fill"></i></div>
+                    <h3 class="fw-bold mb-1">Create Your CloudPass Account</h3>
+                    <p class="text-muted small">Secured with PBKDF2 password hashing and role-based access control.</p>
+                </div>
+
+                <form asp-action="Register" method="post" data-loading="true">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small rounded-3 py-2"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label fw-semibold small"></label>
+                            <input asp-for="FullName" class="form-control rounded-3" placeholder="Priya Sharma" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PhoneNumber" class="form-label fw-semibold small"></label>
+                            <input asp-for="PhoneNumber" class="form-control rounded-3" placeholder="+91 98200 00000" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-7">
+                            <label asp-for="Email" class="form-label fw-semibold small"></label>
+                            <input asp-for="Email" class="form-control rounded-3" placeholder="commuter@example.com" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-5">
+                            <label asp-for="City" class="form-label fw-semibold small"></label>
+                            <input asp-for="City" class="form-control rounded-3" placeholder="Mumbai" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Password" class="form-label fw-semibold small"></label>
+                            <input asp-for="Password" class="form-control rounded-3" placeholder="Min 8 chars, Aa1!" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ConfirmPassword" class="form-label fw-semibold small"></label>
+                            <input asp-for="ConfirmPassword" class="form-control rounded-3" placeholder="Repeat password" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="small text-muted mt-3 mb-4">
+                        <i class="bi bi-info-circle text-primary me-1"></i>Password must contain at least 8 characters including uppercase, lowercase, a digit, and a special character.
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-cp-primary btn-lg">Create CloudPass Account</button>
+                    </div>
+                </form>
+
+                <div class="text-center small text-muted">
+                    Already registered? <a asp-action="Login" class="fw-semibold text-decoration-none">Sign in here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

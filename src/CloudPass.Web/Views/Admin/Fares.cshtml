@@ -1,0 +1,64 @@
+@model List<CloudPass.Domain.Entities.Route>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Centralized Official Fare Management";
+    var schedules = ViewBag.Schedules as List<BusSchedule> ?? new();
+}
+
+<div class="alert alert-primary rounded-4 border-0 small mb-4">
+    <i class="bi bi-shield-lock-fill me-2"></i>
+    <strong>Zero-Trust Fare Governance:</strong> Every booking and bus pass calculation queries these centralized SQL fare records exclusively on the server. All fare updates are permanently recorded in <code>AuditLogs</code>.
+</div>
+
+<div class="cp-card p-4 mb-4">
+    <h6 class="fw-bold mb-3">Route-Based Official Pricing, Service Fees &amp; Taxes</h6>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle small mb-0">
+            <thead class="table-light">
+                <tr><th>Corridor</th><th>Base Fare (INR)</th><th>Service Fee (INR)</th><th>Tax (%)</th><th>Monthly Pass (INR)</th><th class="text-end">Update</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model)
+                {
+                    <tr>
+                        <form asp-action="UpdateRouteFare" method="post">
+                            <input type="hidden" name="routeId" value="@r.Id" />
+                            <td class="fw-bold">@r.SourceCity → @r.DestinationCity</td>
+                            <td><input type="number" step="0.01" name="baseFare" value="@r.BaseFare" class="form-control form-control-sm" style="width:110px;" /></td>
+                            <td><input type="number" step="0.01" name="serviceFee" value="@r.ServiceFee" class="form-control form-control-sm" style="width:95px;" /></td>
+                            <td><input type="number" step="0.01" name="taxPercentage" value="@r.TaxPercentage" class="form-control form-control-sm" style="width:85px;" /></td>
+                            <td><input type="number" step="0.01" name="monthlyPassBasePrice" value="@r.MonthlyPassBasePrice" class="form-control form-control-sm" style="width:115px;" /></td>
+                            <td class="text-end"><button type="submit" class="btn btn-cp-primary btn-sm">Save</button></td>
+                        </form>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="cp-card p-4">
+    <h6 class="fw-bold mb-3">Schedule-Specific Official Seat Fares</h6>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle small mb-0">
+            <thead class="table-light">
+                <tr><th>Schedule</th><th>Route &amp; Bus</th><th>Departure</th><th>Official Seat Fare (INR)</th><th class="text-end">Action</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var s in schedules)
+                {
+                    <tr>
+                        <form asp-action="UpdateScheduleFare" method="post">
+                            <input type="hidden" name="scheduleId" value="@s.Id" />
+                            <td>#@s.Id</td>
+                            <td><strong>@s.Route.SourceCity → @s.Route.DestinationCity</strong> • @s.Bus.BusName</td>
+                            <td>@s.DepartureTime.ToString("dd MMM, HH:mm")</td>
+                            <td><input type="number" step="0.01" name="officialFare" value="@s.OfficialFare" class="form-control form-control-sm" style="width:120px;" /></td>
+                            <td class="text-end"><button type="submit" class="btn btn-cp-navy btn-sm">Update Fare</button></td>
+                        </form>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

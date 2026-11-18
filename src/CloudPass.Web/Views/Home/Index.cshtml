@@ -1,0 +1,234 @@
+@model HomeViewModel
+@{
+    ViewData["Title"] = "Book Your Bus Journey in Seconds";
+    var tomorrow = DateTime.UtcNow.Date.AddDays(1).ToString("yyyy-MM-dd");
+}
+
+<!-- HERO SECTION -->
+<section class="cp-hero">
+    <div class="container">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7 cp-fade-in">
+                <div class="cp-hero-badge mb-3">
+                    <i class="bi bi-cloud-check-fill"></i>
+                    <span>Microsoft Azure Cloud-Native • HMAC-SHA256 Verified Tickets</span>
+                </div>
+                <h1 class="mb-3">Book Your Bus Journey in Seconds.</h1>
+                <p class="lead text-light opacity-75 mb-4">
+                    <strong>Your Journey. Your Ticket. Always Connected.</strong> Experience zero-trust server pricing, real-time concurrency-safe seat booking, instant digital QR passes, and autoscaling cloud reliability.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <div class="d-flex align-items-center gap-2 bg-white bg-opacity-10 rounded-pill px-3 py-2 small">
+                        <i class="bi bi-bus-front text-info"></i>
+                        <span><strong>@Model.TotalBuses</strong> Smart Fleet Buses</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 bg-white bg-opacity-10 rounded-pill px-3 py-2 small">
+                        <i class="bi bi-signpost-2 text-info"></i>
+                        <span><strong>@Model.TotalRoutes</strong> Express Corridors</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 bg-white bg-opacity-10 rounded-pill px-3 py-2 small">
+                        <i class="bi bi-shield-lock text-info"></i>
+                        <span><strong>100%</strong> Fraud-Proof QR</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block text-end">
+                <!-- Clean Modern Cloud Mobility SVG Illustration -->
+                <div class="p-4 rounded-4 bg-white bg-opacity-10 border border-info border-opacity-25 text-start">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge bg-info text-dark fw-bold"><i class="bi bi-broadcast me-1"></i>LIVE CLOUD STATUS</span>
+                        <span class="small text-info fw-semibold">99.95% SLA Target</span>
+                    </div>
+                    <div class="d-grid gap-2 small">
+                        <div class="d-flex justify-content-between py-2 border-bottom border-light border-opacity-10">
+                            <span class="text-light opacity-75"><i class="bi bi-cpu text-info me-2"></i>Autoscale Engine</span>
+                            <span class="text-success fw-semibold">2–10 Azure Instances</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom border-light border-opacity-10">
+                            <span class="text-light opacity-75"><i class="bi bi-database-lock text-info me-2"></i>Seat Concurrency</span>
+                            <span class="text-info fw-semibold">ACID Atomic Lock</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom border-light border-opacity-10">
+                            <span class="text-light opacity-75"><i class="bi bi-qr-code text-info me-2"></i>Ticket Security</span>
+                            <span class="text-info fw-semibold">HMAC-SHA256 Signed</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-2">
+                            <span class="text-light opacity-75"><i class="bi bi-hdd-network text-info me-2"></i>Ticket Storage</span>
+                            <span class="text-light fw-semibold">@Model.StorageProvider</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FLOATING BUS SEARCH WIDGET -->
+<section class="container mb-5">
+    <div class="cp-search-card">
+        <form asp-controller="Bus" asp-action="Search" method="get" class="row g-3 align-items-end" data-loading="true">
+            <div class="col-md-6 col-lg-3">
+                <label class="form-label fw-bold small text-uppercase text-muted"><i class="bi bi-geo-alt-fill text-primary me-1"></i>From Location</label>
+                <input type="text" id="heroSource" name="Source" list="cityOptions" class="form-control form-control-lg rounded-3" placeholder="e.g., Mumbai" value="Mumbai" />
+            </div>
+            <div class="col-auto d-none d-lg-flex align-items-center pb-1">
+                <button type="button" class="btn btn-outline-secondary rounded-circle" onclick="cpSwapCities('heroSource','heroDest')" title="Swap Cities">
+                    <i class="bi bi-arrow-left-right"></i>
+                </button>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <label class="form-label fw-bold small text-uppercase text-muted"><i class="bi bi-pin-map-fill text-info me-1"></i>To Location</label>
+                <input type="text" id="heroDest" name="Destination" list="cityOptions" class="form-control form-control-lg rounded-3" placeholder="e.g., Pune" value="Pune" />
+            </div>
+            <div class="col-md-6 col-lg-2">
+                <label class="form-label fw-bold small text-uppercase text-muted"><i class="bi bi-calendar-event text-primary me-1"></i>Journey Date</label>
+                <input type="date" name="JourneyDate" class="form-control form-control-lg rounded-3" value="@tomorrow" min="@DateTime.UtcNow.Date.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-6 col-lg-1">
+                <label class="form-label fw-bold small text-uppercase text-muted">Seats</label>
+                <select name="Passengers" class="form-select form-select-lg rounded-3">
+                    @for (int i = 1; i <= 6; i++)
+                    {
+                        <option value="@i">@i</option>
+                    }
+                </select>
+            </div>
+            <div class="col-lg-2 d-grid">
+                <button type="submit" class="btn btn-cp-primary btn-lg">
+                    <i class="bi bi-search me-1"></i>Search Buses
+                </button>
+            </div>
+        </form>
+        <datalist id="cityOptions">
+            @foreach (var city in Model.AvailableCities)
+            {
+                <option value="@city"></option>
+            }
+        </datalist>
+    </div>
+</section>
+
+<!-- POPULAR ROUTES -->
+<section class="container py-4">
+    <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+        <div>
+            <span class="cp-pill cp-pill-cyan mb-2"><i class="bi bi-compass"></i>LIVE CORRIDORS</span>
+            <h2 class="cp-section-header mb-0">Popular Express Routes</h2>
+        </div>
+        <a asp-controller="Bus" asp-action="Search" class="btn btn-cp-outline btn-sm px-3">View All Schedules <i class="bi bi-arrow-right ms-1"></i></a>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var route in Model.PopularRoutes)
+        {
+            var hrs = route.EstimatedDurationMinutes / 60;
+            var mins = route.EstimatedDurationMinutes % 60;
+            <div class="col-md-6 col-lg-4">
+                <div class="cp-card cp-card-hover p-4 h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="cp-pill cp-pill-blue"><i class="bi bi-signpost-split"></i>@route.DistanceKm km</span>
+                            <span class="small text-muted"><i class="bi bi-clock me-1"></i>@(hrs)h @(mins)m</span>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-1">
+                            @route.SourceCity <i class="bi bi-arrow-right text-info mx-1"></i> @route.DestinationCity
+                        </h5>
+                        <p class="small text-muted mb-3">Official starting fare • Monthly Pass INR @route.MonthlyPassBasePrice.ToString("N0")</p>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <div>
+                            <div class="small text-muted">Starts from</div>
+                            <div class="fs-5 fw-extrabold text-primary">INR @route.BaseFare.ToString("N0")</div>
+                        </div>
+                        <a asp-controller="Bus" asp-action="Search" asp-route-Source="@route.SourceCity" asp-route-Destination="@route.DestinationCity" asp-route-JourneyDate="@tomorrow"
+                           class="btn btn-cp-navy btn-sm">
+                            Book Now <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- WHY CHOOSE CLOUDPASS -->
+<section class="container py-5">
+    <div class="text-center mb-5">
+        <span class="cp-pill cp-pill-blue mb-2"><i class="bi bi-stars"></i>BUILT FOR MODERN TRANSIT</span>
+        <h2 class="cp-section-header">Why Choose CloudPass?</h2>
+        <p class="text-muted mx-auto" style="max-width:640px;">Designed from the ground up to eliminate paper ticket loss, seat double-booking, client-side fare tampering, and festival-rush server crashes.</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-4">
+            <div class="cp-card p-4 h-100">
+                <div class="cp-icon-box mb-3"><i class="bi bi-qr-code-scan"></i></div>
+                <h5 class="fw-bold">Zero-PII Signed Digital Tickets</h5>
+                <p class="small text-muted mb-0">Every ticket carries a non-guessable HMAC-SHA256 signed token stored in cloud storage. QR scans verify authenticity and prevent duplication without exposing personal details.</p>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <div class="cp-card p-4 h-100">
+                <div class="cp-icon-box mb-3"><i class="bi bi-calculator"></i></div>
+                <h5 class="fw-bold">Zero-Trust Server Pricing</h5>
+                <p class="small text-muted mb-0">All ticket fares, taxes, service fees, and pass discounts are computed strictly on the server from centralized SQL fare tables—blocking browser-side price manipulation.</p>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <div class="cp-card p-4 h-100">
+                <div class="cp-icon-box mb-3"><i class="bi bi-lock-fill"></i></div>
+                <h5 class="fw-bold">Atomic Seat Concurrency Control</h5>
+                <p class="small text-muted mb-0">ACID database transactions and conditional atomic updates guarantee two commuters can never book the same seat—even under heavy concurrent traffic.</p>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <div class="cp-card p-4 h-100">
+                <div class="cp-icon-box mb-3"><i class="bi bi-graph-up-arrow"></i></div>
+                <h5 class="fw-bold">Azure Elastic Autoscaling</h5>
+                <p class="small text-muted mb-0">Configured for Azure App Service horizontal scaling (2–10 instances) triggered by CPU utilization and HTTP queue depth to stay fast during holiday surges.</p>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <div class="cp-card p-4 h-100">
+                <div class="cp-icon-box mb-3"><i class="bi bi-person-badge"></i></div>
+                <h5 class="fw-bold">Digital Commuter Bus Passes</h5>
+                <p class="small text-muted mb-0">Apply online for 1, 3, 6, or 12-month passes, track admin approval in real time, download tamper-proof PDF passes, and renew with one click.</p>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            <div class="cp-card p-4 h-100">
+                <div class="cp-icon-box mb-3"><i class="bi bi-heart-pulse"></i></div>
+                <h5 class="fw-bold">High Availability & Resilience</h5>
+                <p class="small text-muted mb-0">EF Core transient-fault retries, live <code>/health/ready</code> probes, rate limiting, and async background queues keep bookings reliable through infrastructure blips.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- DIGITAL TICKET BENEFITS & CLOUD SECURITY BANNER -->
+<section class="container pb-5">
+    <div class="cp-pass-card">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+                <span class="badge bg-info text-dark fw-bold mb-2">CLOUD SECURITY & DIGITAL TICKETING</span>
+                <h3 class="fw-bold mb-3">Never Lose a Bus Ticket Again. Always Verified in the Cloud.</h3>
+                <div class="row g-3 small opacity-90">
+                    <div class="col-sm-6"><i class="bi bi-check-circle-fill text-info me-2"></i>Instant PDF download stored in Azure Blob Storage</div>
+                    <div class="col-sm-6"><i class="bi bi-check-circle-fill text-info me-2"></i>Single-use conductor check-in prevents ticket reuse</div>
+                    <div class="col-sm-6"><i class="bi bi-check-circle-fill text-info me-2"></i>Strict IDOR ownership enforcement on every ticket URL</div>
+                    <div class="col-sm-6"><i class="bi bi-check-circle-fill text-info me-2"></i>Signed HMAC-SHA256 payment & webhook verification</div>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <div class="d-grid d-sm-flex d-lg-grid gap-2">
+                    <a asp-controller="Pass" asp-action="Index" class="btn btn-info text-dark fw-bold rounded-3 px-4 py-2">
+                        <i class="bi bi-person-badge me-2"></i>Apply for Bus Pass
+                    </a>
+                    <a asp-controller="Ticket" asp-action="Verify" class="btn btn-outline-light rounded-3 px-4 py-2">
+                        <i class="bi bi-qr-code-scan me-2"></i>Verify a Digital Ticket
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

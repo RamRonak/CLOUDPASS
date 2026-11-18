@@ -1,0 +1,205 @@
+@model BusDetailsViewModel
+@{
+    ViewData["Title"] = $"Select Seats - {Model.Schedule.Bus.BusName}";
+    var s = Model.Schedule;
+}
+
+<section class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-3 small">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Bus" asp-action="Search" asp-route-Source="@s.Route.SourceCity" asp-route-Destination="@s.Route.DestinationCity">Search Results</a></li>
+            <li class="breadcrumb-item active">Seat Selection</li>
+        </ol>
+    </nav>
+
+    <!-- Bus Header Card -->
+    <div class="cp-card p-4 mb-4">
+        <div class="row align-items-center g-3">
+            <div class="col-lg-6">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    <span class="cp-pill cp-pill-cyan">@s.Bus.BusType</span>
+                    <span class="cp-pill cp-pill-blue">@s.Bus.BusNumber</span>
+                    <span class="cp-pill cp-pill-green">@s.AvailableSeats of @s.Bus.TotalSeats Available</span>
+                </div>
+                <h3 class="fw-bold mb-1">@s.Bus.BusName</h3>
+                <div class="small text-muted">Operated by <strong>@s.Bus.OperatorName</strong> • Amenities: @s.Bus.Amenities</div>
+            </div>
+            <div class="col-lg-6 text-lg-end">
+                <div class="fs-5 fw-bold text-dark">
+                    @s.Route.SourceCity <i class="bi bi-arrow-right text-info mx-1"></i> @s.Route.DestinationCity
+                </div>
+                <div class="small text-muted">
+                    Departure: <strong>@s.DepartureTime.ToString("dd MMM yyyy, HH:mm")</strong> (@s.BoardingPoint)<br />
+                    Arrival: <strong>@s.ArrivalTime.ToString("dd MMM yyyy, HH:mm")</strong> (@s.DroppingPoint)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- INTERACTIVE SEAT MAP -->
+        <div class="col-lg-8">
+            <div class="cp-card p-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-grid-3x3-gap-fill text-primary me-2"></i>Interactive Bus Seat Layout</h5>
+                    <div class="d-flex gap-3 small">
+                        <span><span class="cp-seat-legend-dot border border-2 bg-white align-middle me-1"></span>Available</span>
+                        <span><span class="cp-seat-legend-dot align-middle me-1" style="background:linear-gradient(135deg,#2563EB,#06B6D4);"></span>Selected</span>
+                        <span><span class="cp-seat-legend-dot align-middle me-1" style="background:#E2E8F0;border:1px solid #CBD5E1;"></span>Occupied</span>
+                    </div>
+                </div>
+
+                @if (s.Bus.IsSleeper)
+                {
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="cp-bus-chassis">
+                                <div class="cp-bus-driver-bar">
+                                    <span>LOWER DECK</span>
+                                    <span><i class="bi bi-life-preserver me-1"></i>DRIVER</span>
+                                </div>
+                                <div class="cp-seat-grid-sleeper">
+                                    @foreach (var seat in Model.LowerDeckSeats)
+                                    {
+                                        if (seat.ColumnIndex == 2)
+                                        {
+                                            <div></div>
+                                        }
+                                        <button type="button"
+                                                class="cp-seat-btn sleeper @(seat.IsBooked ? "occupied" : "")"
+                                                data-seat-id="@seat.Id"
+                                                data-seat-number="@seat.SeatNumber"
+                                                disabled="@seat.IsBooked"
+                                                title="@(seat.IsBooked ? "Already Occupied" : $"Select Berth {seat.SeatNumber}")">
+                                            @seat.SeatNumber
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="cp-bus-chassis">
+                                <div class="cp-bus-driver-bar">
+                                    <span>UPPER DECK</span>
+                                    <span><i class="bi bi-layers me-1"></i>SLEEPER</span>
+                                </div>
+                                <div class="cp-seat-grid-sleeper">
+                                    @foreach (var seat in Model.UpperDeckSeats)
+                                    {
+                                        if (seat.ColumnIndex == 2)
+                                        {
+                                            <div></div>
+                                        }
+                                        <button type="button"
+                                                class="cp-seat-btn sleeper @(seat.IsBooked ? "occupied" : "")"
+                                                data-seat-id="@seat.Id"
+                                                data-seat-number="@seat.SeatNumber"
+                                                disabled="@seat.IsBooked"
+                                                title="@(seat.IsBooked ? "Already Occupied" : $"Select Berth {seat.SeatNumber}")">
+                                            @seat.SeatNumber
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="cp-bus-chassis mx-auto" style="max-width:430px;">
+                        <div class="cp-bus-driver-bar">
+                            <span>FRONT ENTRY</span>
+                            <span><i class="bi bi-life-preserver me-1"></i>DRIVER CABIN</span>
+                        </div>
+                        <div class="cp-seat-grid-seater">
+                            @foreach (var seat in Model.LowerDeckSeats)
+                            {
+                                if (seat.ColumnIndex == 3)
+                                {
+                                    <div></div>
+                                }
+                                <button type="button"
+                                        class="cp-seat-btn @(seat.IsBooked ? "occupied" : "")"
+                                        data-seat-id="@seat.Id"
+                                        data-seat-number="@seat.SeatNumber"
+                                        disabled="@seat.IsBooked"
+                                        title="@(seat.IsBooked ? "Already Occupied" : $"Select Seat {seat.SeatNumber}")">
+                                    @seat.SeatNumber
+                                </button>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="alert alert-light border mt-4 mb-0 small">
+                    <i class="bi bi-database-lock text-primary me-2"></i>
+                    <strong>Concurrency Guarantee:</strong> CloudPass uses ACID database transactions and atomic seat-locking so two commuters can never book the same seat simultaneously.
+                </div>
+            </div>
+        </div>
+
+        <!-- FARE SUMMARY & CHECKOUT SIDEBAR -->
+        <div class="col-lg-4">
+            <div class="cp-card p-4 sticky-top" style="top:88px;">
+                <h5 class="fw-bold mb-3">Booking Summary</h5>
+                <div class="mb-3">
+                    <div class="small fw-semibold text-muted mb-2">Selected Seats (<span id="cpSeatCount">0</span> / 6 max)</div>
+                    <div id="cpSelectedSeatsList" class="min-vh-0"></div>
+                </div>
+
+                <hr />
+
+                <div class="d-grid gap-2 small mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Official Seat Fare</span>
+                        <span>INR @s.OfficialFare.ToString("N2") / seat</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Base Fare Subtotal</span>
+                        <strong id="cpBaseFare">INR 0.00</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Cloud Service Fee</span>
+                        <span id="cpServiceFee">INR 0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">GST / Taxes (@Model.TaxPercentage%)</span>
+                        <span id="cpTaxAmount">INR 0.00</span>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-light rounded-3 d-flex justify-content-between align-items-center mb-3">
+                    <span class="fw-bold">Estimated Total</span>
+                    <span id="cpTotalFare" class="fs-5 fw-extrabold text-primary">INR 0.00</span>
+                </div>
+
+                <form asp-controller="Booking" asp-action="Checkout" method="get" data-loading="true">
+                    <input type="hidden" name="scheduleId" value="@s.Id" />
+                    <input type="hidden" id="cpSeatIdsInput" name="seatIds" value="" />
+                    <div class="d-grid">
+                        <button type="submit" id="cpProceedCheckoutBtn" class="btn btn-cp-primary btn-lg" disabled>
+                            Continue to Checkout <i class="bi bi-arrow-right ms-1"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="small text-muted text-center mt-3">
+                    <i class="bi bi-shield-check text-success me-1"></i>Final fare is recalculated &amp; enforced server-side.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    cpInitSeatSelector({
+        officialFare: @s.OfficialFare.ToString(System.Globalization.CultureInfo.InvariantCulture),
+        serviceFee: @Model.ServiceFeePerSeat.ToString(System.Globalization.CultureInfo.InvariantCulture),
+        taxPercentage: @Model.TaxPercentage.ToString(System.Globalization.CultureInfo.InvariantCulture)
+    });
+});
+</script>
+}

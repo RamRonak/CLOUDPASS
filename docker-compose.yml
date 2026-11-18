@@ -1,0 +1,58 @@
+services:
+  cloudpass-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cloudpass-web
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Database__Provider=SqlServer
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=CloudPassDb;User Id=sa;Password=${SQL_SA_PASSWORD};TrustServerCertificate=True;MultipleActiveResultSets=True
+      - Security__TicketSigningSecret=${CLOUDPASS_TICKET_SIGNING_SECRET}
+      - PaymentGateway__Provider=Razorpay-TestMode
+      - PaymentGateway__KeyId=${RAZORPAY_TEST_KEY_ID:-rzp_test_cloudpass_demo}
+      - PaymentGateway__KeySecret=${CLOUDPASS_PAYMENT_KEY_SECRET}
+      - PaymentGateway__WebhookSecret=${CLOUDPASS_PAYMENT_WEBHOOK_SECRET}
+      - PaymentGateway__TestMode=true
+      - Storage__Provider=AzureBlob
+      - Storage__AzureBlobConnectionString=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://azurite:10000/devstoreaccount1;
+      - Storage__ContainerName=cloudpass-tickets
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      azurite:
+        condition: service_started
+    restart: unless-stopped
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: cloudpass-sql
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${SQL_SA_PASSWORD}
+    ports:
+      - "1433:1433"
+    volumes:
+      - cloudpass_sqldata:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$${MSSQL_SA_PASSWORD}\" -C -Q 'SELECT 1' || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: cloudpass-azurite
+    command: "azurite-blob --blobHost 0.0.0.0 --blobPort 10000"
+    ports:
+      - "10000:10000"
+    volumes:
+      - cloudpass_blobdata:/data
+    restart: unless-stopped
+
+volumes:
+  cloudpass_sqldata:
+  cloudpass_blobdata:

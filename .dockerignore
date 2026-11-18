@@ -1,0 +1,12 @@
+bin/
+obj/
+.git/
+.vs/
+.nuget/
+TestResults/
+docs/
+tests/
+*.db
+*.db-shm
+*.db-wal
+.env

@@ -1,0 +1,27 @@
+# .NET / Visual Studio
+bin/
+obj/
+.vs/
+*.user
+*.suo
+TestResults/
+artifacts/
+
+# Local NuGet cache (restored cleanly by dotnet restore)
+.nuget/
+NuGet.Config
+
+# Local database & storage emulator
+*.db
+*.db-shm
+*.db-wal
+src/CloudPass.Web/App_Data/
+
+# Environment & Secrets (NEVER commit real secrets)
+.env
+appsettings.Local.json
+appsettings.Secrets.json
+
+# OS
+.DS_Store
+Thumbs.db

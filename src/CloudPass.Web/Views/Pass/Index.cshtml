@@ -1,0 +1,179 @@
+@model BusPassIndexViewModel
+@{
+    ViewData["Title"] = "Digital Bus Pass Management";
+}
+
+<section class="container py-4">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <div>
+            <span class="cp-pill cp-pill-cyan mb-1"><i class="bi bi-person-badge"></i>SMART COMMUTER PASSES</span>
+            <h2 class="cp-section-header mb-0">Monthly &amp; Multi-Month Bus Pass Hub</h2>
+            <div class="small text-muted">Apply online with server-calculated multi-month discounts. Approved passes receive a signed QR code &amp; PDF.</div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- APPLY FOR NEW BUS PASS -->
+        <div class="col-lg-5">
+            <div class="cp-card p-4 sticky-top" style="top:88px;">
+                <h5 class="fw-bold mb-3"><i class="bi bi-file-earmark-plus text-primary me-2"></i>Apply for New Digital Bus Pass</h5>
+                <form asp-action="Apply" method="post" data-loading="true">
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Select Commuter Corridor *</label>
+                        <select id="passRouteSelect" name="routeId" class="form-select rounded-3" onchange="cpUpdatePassPrice()" required>
+                            @foreach (var r in Model.AvailableRoutes)
+                            {
+                                <option value="@r.Id">@r.SourceCity ↔ @r.DestinationCity (INR @r.MonthlyPassBasePrice.ToString("N0")/mo)</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Validity Period *</label>
+                            <select id="passDurationSelect" name="durationMonths" class="form-select rounded-3" onchange="cpUpdatePassPrice()">
+                                <option value="1">1 Month (Standard)</option>
+                                <option value="3">3 Months (5% Off)</option>
+                                <option value="6">6 Months (10% Off)</option>
+                                <option value="12">12 Months (18% Off)</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">Start Date *</label>
+                            <input type="date" name="requestedStartDate" value="@DateTime.UtcNow.Date.ToString("yyyy-MM-dd")" min="@DateTime.UtcNow.Date.ToString("yyyy-MM-dd")" class="form-control rounded-3" required />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">ID Proof Type *</label>
+                            <select name="idProofType" class="form-select rounded-3">
+                                <option value="College / University ID">College / University ID</option>
+                                <option value="Employee ID">Employee ID</option>
+                                <option value="Aadhaar Card">Aadhaar Card</option>
+                                <option value="Driving License">Driving License</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-semibold">ID Number *</label>
+                            <input name="idProofNumber" class="form-control rounded-3" placeholder="e.g., UNI-2026-884" required />
+                        </div>
+                    </div>
+
+                    <div id="passPricePreview" class="p-3 bg-light rounded-3 border mb-3 small">
+                        Calculating official server pass price...
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-cp-primary btn-lg">Submit Pass Application</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ACTIVE PASSES & APPLICATION TRACKER -->
+        <div class="col-lg-7">
+            <h5 class="fw-bold mb-3"><i class="bi bi-patch-check-fill text-success me-2"></i>My Active Digital Bus Passes (@Model.ActivePasses.Count)</h5>
+            @if (!Model.ActivePasses.Any())
+            {
+                <div class="cp-card p-4 text-center text-muted small mb-4">
+                    You do not have an active digital bus pass yet. Submit an application on the left and await Admin approval.
+                </div>
+            }
+            else
+            {
+                <div class="d-grid gap-3 mb-4">
+                    @foreach (var pass in Model.ActivePasses)
+                    {
+                        <div class="cp-pass-card">
+                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                                <div>
+                                    <span class="badge bg-info text-dark fw-bold mb-1">ACTIVE CLOUDPASS</span>
+                                    <h4 class="fw-bold mb-0">@pass.Route.SourceCity ↔ @pass.Route.DestinationCity</h4>
+                                    <div class="small opacity-75 font-monospace">@pass.PassNumber</div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="small opacity-75">Valid Until</div>
+                                    <div class="fs-5 fw-bold text-info">@pass.ValidUntil.ToString("dd MMM yyyy")</div>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2 pt-3 border-top border-light border-opacity-25">
+                                <a asp-action="ViewPass" asp-route-passNumber="@pass.PassNumber" class="btn btn-info text-dark fw-bold btn-sm rounded-3">
+                                    <i class="bi bi-qr-code me-1"></i>Open Digital QR Pass
+                                </a>
+                                <a asp-action="DownloadPdf" asp-route-passNumber="@pass.PassNumber" class="btn btn-outline-light btn-sm rounded-3">
+                                    <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
+                                </a>
+                                <form asp-action="Renew" method="post" class="ms-auto">
+                                    <input type="hidden" name="passId" value="@pass.Id" />
+                                    <input type="hidden" name="durationMonths" value="1" />
+                                    <button type="submit" class="btn btn-light btn-sm fw-semibold rounded-3">
+                                        <i class="bi bi-arrow-repeat me-1"></i>Renew +1 Month
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (Model.ExpiredOrRevokedPasses.Any())
+            {
+                <h6 class="fw-bold mb-2">Expired / Previous Passes</h6>
+                <div class="cp-card p-3 mb-4">
+                    @foreach (var p in Model.ExpiredOrRevokedPasses)
+                    {
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom small">
+                            <div>
+                                <strong>@p.PassNumber</strong> • @p.Route.SourceCity ↔ @p.Route.DestinationCity
+                                <span class="badge text-bg-secondary ms-1">@p.Status</span>
+                            </div>
+                            <form asp-action="Renew" method="post">
+                                <input type="hidden" name="passId" value="@p.Id" />
+                                <input type="hidden" name="durationMonths" value="1" />
+                                <button type="submit" class="btn btn-cp-outline btn-sm">Renew Pass</button>
+                            </form>
+                        </div>
+                    }
+                </div>
+            }
+
+            <h5 class="fw-bold mb-3"><i class="bi bi-hourglass-split text-primary me-2"></i>Pass Applications (@Model.Applications.Count)</h5>
+            <div class="cp-card overflow-hidden">
+                @if (!Model.Applications.Any())
+                {
+                    <div class="p-4 text-center text-muted small">No pass applications submitted yet.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle small mb-0">
+                            <thead class="table-light">
+                                <tr><th>Ref</th><th>Corridor</th><th>Duration</th><th>Price</th><th>Status</th><th>Remarks</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var a in Model.Applications)
+                                {
+                                    <tr>
+                                        <td class="font-monospace fw-semibold">@a.ApplicationReference</td>
+                                        <td>@a.Route.SourceCity ↔ @a.Route.DestinationCity</td>
+                                        <td>@a.DurationMonths mo</td>
+                                        <td class="fw-bold">INR @a.CalculatedPrice.ToString("N2")</td>
+                                        <td>
+                                            <span class="badge @(a.Status == PassApplicationStatus.Approved ? "text-bg-success" : a.Status == PassApplicationStatus.Rejected ? "text-bg-danger" : "text-bg-warning")">@a.Status</span>
+                                        </td>
+                                        <td class="text-muted">@(a.AdminRemarks ?? "Pending review")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+<script>document.addEventListener('DOMContentLoaded', cpUpdatePassPrice);</script>
+}
